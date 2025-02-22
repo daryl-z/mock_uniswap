@@ -11,18 +11,6 @@ const Header = () => {
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
 
-  // 判断是否为 MetaMask
-  const isMetaMaskAvailable = window.ethereum && window.ethereum.isMetaMask;
-
-  // 检查 MetaMask 是否安装
-  const checkMetaMask = () => {
-    if (!isMetaMaskAvailable) {
-      console.log(
-        "MetaMask is not installed. Please install MetaMask to continue."
-      );
-    }
-  };
-
   // 连接 MetaMask 钱包
   const connectMetaMask = async () => {
     if (window.ethereum) {
@@ -81,20 +69,26 @@ const Header = () => {
       };
       init();
     } else {
-      checkMetaMask(); // 检查 MetaMask 是否安装
+      const isMetaMaskAvailable =
+        window.ethereum && (window.ethereum as any).isMetaMask;
+      if (!isMetaMaskAvailable) {
+        console.log(
+          "MetaMask is not installed. Please install MetaMask to continue."
+        );
+      }
     }
   }, []);
 
   return (
-    <header className="p-6 bg-blue-500 text-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold">UniswapV2-inspired SPA</h1>
+    <header className="p-6 bg-blue-600 text-white rounded-xl shadow-xl space-y-6">
+      <h1 className="text-4xl font-semibold">UniswapV2-inspired SPA</h1>
       {connected ? (
         <div className="mt-4">
-          <p>Connected Wallet: {walletAddress}</p>
-          <p>Balance: {balance} ETH</p>
+          <p className="text-lg">Connected Wallet: {walletAddress}</p>
+          <p className="text-lg">Balance: {balance} ETH</p>
           <button
             onClick={disconnectWallet}
-            className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+            className="mt-4 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
           >
             Disconnect
           </button>
@@ -103,14 +97,14 @@ const Header = () => {
         <div className="mt-4 space-x-4">
           <button
             onClick={connectMetaMask}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
+            className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
           >
             Connect with MetaMask
           </button>
         </div>
       )}
-      <div>
-        <div>Wallet Connect</div>
+      <div className="mt-8">
+        <div className="font-semibold text-lg mb-4">Wallet Connect</div>
         <ConnectButton />
         <ActionButtonList />
         <InfoList />
