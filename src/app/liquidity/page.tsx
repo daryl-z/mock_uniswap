@@ -126,9 +126,9 @@ const LiquidityPage = () => {
 
   // 组件加载时初始化
   useEffect(() => {
-    if (window.ethereum) {
+    if (typeof window !== "undefined" && window.ethereum) {
       initContracts();
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
       getWalletAddress(provider).then(() => fetchBalances());
     }
   }, [walletAddress]);

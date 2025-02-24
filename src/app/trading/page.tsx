@@ -1,7 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
+import dynamic from "next/dynamic";
+
+const Header = dynamic(() => import("@/components/Header"), { ssr: false });
 
 // 这里假设你已经将合约地址通过props或从合约部署结果获取
 const uniswapV2PairAddress = "<UniswapV2Pair-Address>";
@@ -25,7 +28,7 @@ const TradingPage = () => {
 
   // 获取钱包地址
   const getWalletAddress = async (provider: ethers.BrowserProvider) => {
-    const signer = provider.getSigner();
+    const signer = await provider.getSigner();
     const address = await signer.getAddress();
     setSigner(signer);
     setWalletAddress(address);
@@ -37,15 +40,15 @@ const TradingPage = () => {
     if (mockERC20 && mockUSDC && walletAddress) {
       const erc20Balance = await mockERC20.balanceOf(walletAddress);
       const usdcBalance = await mockUSDC.balanceOf(walletAddress);
-      setBalanceERC20(ethers.utils.formatUnits(erc20Balance, 18)); // 格式化 MockERC20 为 18 位
-      setBalanceUSDC(ethers.utils.formatUnits(usdcBalance, 6)); // 格式化 MOCK_USDC 为 6 位
+      setBalanceERC20(ethers.formatUnits(erc20Balance, 18)); // 格式化 MockERC20 为 18 位
+      setBalanceUSDC(ethers.formatUnits(usdcBalance, 6)); // 格式化 MOCK_USDC 为 6 位
     }
   };
 
   // 初始化合约
   const initContracts = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
+    const provider = new ethers.BrowserProvider(window.ethereum as any);
+    const signer = await provider.getSigner();
     setProvider(provider);
 
     const mockERC20Contract = new ethers.Contract(
@@ -82,7 +85,7 @@ const TradingPage = () => {
   const handleTrade = async () => {
     if (!amount || !uniswapV2Pair || !mockERC20 || !mockUSDC) return;
 
-    const amountInWei = ethers.utils.parseUnits(amount, 18); // 将用户输入的金额转换为 Wei（18 位精度）
+    const amountInWei = ethers.parseUnits(amount, 18); // 将用户输入的金额转换为 Wei（18 位精度）
 
     // 假设交易是 1:1 交换
     const amountOut = amountInWei; // 假设交换比率为 1:1
@@ -97,10 +100,14 @@ const TradingPage = () => {
 
   // 组件加载时初始化
   useEffect(() => {
-    if (window.ethereum) {
+    if (typeof window !== "undefined" && window?.ethereum) {
       initContracts();
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      getWalletAddress(provider).then(() => fetchBalances());
+      const provider = new ethers.BrowserProvider(window?.ethereum as any);
+      getWalletAddress(provider)
+        .then(() => fetchBalances())
+        .catch((e) => {
+          console.log(e.error);
+        });
     }
   }, [walletAddress]);
 

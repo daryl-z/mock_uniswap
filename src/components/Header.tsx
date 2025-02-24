@@ -13,7 +13,7 @@ const Header = () => {
 
   // 连接 MetaMask 钱包
   const connectMetaMask = async () => {
-    if (window.ethereum) {
+    if (typeof window !== "undefined" && window.ethereum) {
       const provider = new ethers.BrowserProvider(window.ethereum as any);
       try {
         const accounts = await provider.send("eth_requestAccounts", []);
@@ -52,7 +52,7 @@ const Header = () => {
 
   // 初始化检查 MetaMask 连接
   useEffect(() => {
-    if (window.ethereum) {
+    if (typeof window !== "undefined" && window.ethereum) {
       const init = async () => {
         const provider = new ethers.BrowserProvider(window.ethereum as any);
         try {

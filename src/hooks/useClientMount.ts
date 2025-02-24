@@ -6,7 +6,7 @@ export function useClientMounted() {
 
   useEffect(() => {
     setMounted(true);
-  }, []); // Runs only on mount
+  }, []);
 
   return mounted;
 }
